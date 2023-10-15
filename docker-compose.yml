@@ -1,0 +1,17 @@
+version: '3'
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566:4566"  # For AWS service API
+    environment:
+      - SERVICES=s3,lambda,apigateway,cloudformation
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - HOSTNAME=localstack
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "./localstack:/tmp/localstack"

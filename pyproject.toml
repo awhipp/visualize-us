@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "visualize-us"
+version = "0.1.0"
+description = "Everyone who visits, and consents, is logged and shown on a geographic map"
+authors = ["awhipp"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ip2geotools = "^0.1.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
