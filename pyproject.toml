@@ -8,7 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-ip2geotools = "^0.1.6"
+requests = "^2.31.0"
+boto3 = "^1.28.63"
 
 
 [build-system]
