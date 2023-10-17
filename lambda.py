@@ -63,6 +63,8 @@ def lambda_handler(event, context):
             'city': res['city'],
             'region': res['region'],
             'country': res['country'],
+            'lat': res['loc'].split(',')[0],
+            'lon': res['loc'].split(',')[1],
         }
     else:
         stored_data[key]['count'] += 1

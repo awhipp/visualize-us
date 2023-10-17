@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Visualize Us | A Geotagging Visitor Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            width: 100%;
+            background: #336699;
+            color: white;
+            margin: 0 auto;
+            padding: 1em 0;
+            border-bottom: 1px solid white;
+        }
+        #title > span {
+            font-size: 0.75em;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+        /* Styles for the disclaimer modal */
+        #disclaimerModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: grey;
+            z-index: 999;
+        }
+        #disclaimerContent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        #disclaimerButton {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="disclaimerModal">
+        <div id="disclaimerContent">
+            <h2>Disclaimer</h2>
+            <p>This website uses user location and provides a map of all historical users.</p>
+            <p>It does not store anything other than estimated location based on IP. There is no storage of IP or personally identifiable information.</p>
+            <button id="disclaimerButton">Enter</button>
+            <button onclick="history.back();">Leave</button>
+        </div>
+    </div>
+    <p id="title"> Geotagging Visitor Map <br> <span>Total Visitors: ...</span> </p>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        // Function to hide the disclaimer modal
+        function hideDisclaimerModal() {
+            document.getElementById("disclaimerModal").style.display = "none";
+        }
+
+        // Handle the "I Agree" button click event
+        document.getElementById("disclaimerButton").addEventListener("click", function() {
+            hideDisclaimerModal();
+            initializeMap();
+        });
+
+        function initializeMap() {
+            var primary = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            var individual = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            var title_height = document.getElementById("title").offsetHeight + 20;
+            $('#map').css('height', $(window).height() - title_height);
+
+            $(window).resize(function() {
+                title_height = document.getElementById("title").offsetHeight + 20;
+                $('#map').css('height', $(window).height() - title_height);
+            });
+
+            $.getJSON("https://sk3led7wo2v4am6z2emf2vskji0mccui.lambda-url.us-east-1.on.aws/", function(data) {
+                specific = data.specific;
+                full = data.full;
+                
+                // Create a Leaflet map
+                var map = L.map('map').setView([0, 0], 2);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                }).addTo(map);
+
+                var count = 0;
+                // Add markers to the map based on the JSON data
+                full.forEach(function(loc) {
+                    count += loc.count;
+                    if (specific.lon == loc.lon && specific.lat == loc.lat) {
+                        var marker = L.marker([loc.lat, loc.lon], {icon: individual}).addTo(map);
+                        var text = `${loc.count} visitor from near ${loc.city}, ${loc.region} (${loc.country})`;
+                        text += `<br><b>Including You!</b>`;
+                        marker.bindPopup(text);
+                    } else {
+                        var marker = L.marker([loc.lat, loc.lon], {icon: primary}).addTo(map);
+                        var text = `${loc.count} visitor from near ${loc.city}, ${loc.region} (${loc.country})`;
+                        marker.bindPopup(text);
+                    }
+                });
+
+                // Update the title with the total number of visitors
+                $('#title > span').text(`Total Visitors: ${count}`);
+            });
+        }
+
+    </script>
+</body>
+</html>
